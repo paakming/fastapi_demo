@@ -1,17 +1,10 @@
-from enum import Enum
 from datetime import datetime
-from typing import Optional
 
-from sqlmodel import SQLModel, Field, Relationship
-from pydantic import EmailStr, HttpUrl, BaseModel, model_validator, field_serializer
+from pydantic import BaseModel, field_serializer
+from sqlmodel import Field, Relationship, SQLModel
 
 from .user_role import UserRoles
-from .permission import UserPerms
 
-class GenderEnum(Enum):
-    MALE = "male"
-    FEMALE = "female"
-    OTHER = "unknown"
 
 class User(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True, index=True)
@@ -21,13 +14,15 @@ class User(SQLModel, table=True):
     email: str = Field()
     avatar: str = Field()
     identity: str = Field()
-    gender: str = Field(default=GenderEnum.OTHER)
-    phone: Optional[str] = Field()
+    gender: str = Field()
+    phone: str | None = Field()
     created_at: datetime = Field(default=datetime.now())
     updated_at: datetime = Field(default=datetime.now())
     deleted_at: datetime = Field(default=None)
 
-    roles: Optional[list['Role']] = Relationship(back_populates="users", link_model=UserRoles)
+    roles: list["Role"] | None = Relationship(
+        back_populates="users", link_model=UserRoles,
+    )
 
 
 class UserIn(BaseModel):
@@ -45,7 +40,7 @@ class UserVO(BaseModel):
     avatar: str = Field()
     identity: str = Field()
     gender: str = Field()
-    phone: Optional[str] = Field()
+    phone: str | None = Field()
 
     # roles: Optional[list[str]] = Field()
     # permissions: Optional[list[UserPerms]] = Field()
@@ -53,8 +48,9 @@ class UserVO(BaseModel):
     class Config:
         from_attributes = True
 
-    
-    @field_serializer('username', 'nickname', 'email', 'avatar', 'identity', 'gender', 'phone')
+    @field_serializer(
+        "username", "nickname", "email", "avatar", "identity", "gender", "phone",
+    )
     def serialize_none_as_empty_str(self, v):
         return v if v is not None else ""
 

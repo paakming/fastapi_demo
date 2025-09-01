@@ -1,3 +1,3 @@
-from . import user
-from . import role
-from . import permission
+from . import menu, role, security, user
+
+__all__ = ['user', 'role', 'menu', 'security']
