@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     )
 
     APP_RELOAD: bool = False
-    APP_ENV: str
+    APP_ENV: str = 'prod'
     APP_HOST: str
     APP_PORT: int = 8000
     APP_VERSION: str
@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
     REDIS_DB: int
-    REDIS_PASSWORD: str | None
+    REDIS_PASSWORD: str | None = None
 
     # JWT配置
     SECRET_KEY: str

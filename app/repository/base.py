@@ -6,6 +6,7 @@ from sqlalchemy import func, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.base import Base
+from app.models.response import Pagination
 
 
 class BaseRepository[Clazz: Base]:
@@ -168,13 +169,13 @@ class BaseRepository[Clazz: Base]:
             records = await self.db.scalars(select(self.clazz).where(getattr(self.clazz, field_name) == field_value))
         return list(records.all())
 
-    async def paginate(self, page_index: int = 1, page_size: int = 10) -> dict[str, Any]:
+    async def paginate(self, page_index: int = 1, page_size: int = 10) -> Pagination[Clazz]:
         """
         分页查询
 
         Args:
-            page: 页码（从1开始）
-            size: 每页大小
+            page_index: 页码（从1开始）
+            page_size: 每页大小
 
         Returns:
             包含数据和分页信息的字典
@@ -193,14 +194,13 @@ class BaseRepository[Clazz: Base]:
         # 获取数据
         result = await self.db.scalars(query.offset(offset).limit(page_size))
         data = list(result.all())
-
-        return {
-            'data': data,
-            'total': total,
-            'page': page_index,
-            'size': page_size,
-            'pages': (total + page_size - 1) // page_size if page_size > 0 else 0,
-        }
+        return Pagination(
+            data=data,
+            total=total,
+            page=page_index,
+            size=page_size,
+            pages=(total + page_size - 1) // page_size if page_size > 0 else 0,
+        )
 
     async def batch_delete(self, ids: list[int]) -> bool:
         """

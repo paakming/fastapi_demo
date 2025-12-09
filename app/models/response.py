@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ResponseCode(IntEnum):
@@ -11,6 +11,17 @@ class ResponseCode(IntEnum):
     FORBIDDEN = 403
     NOT_FOUND = 404
     BAD_REQUEST = 400
+
+
+class Pagination[T](BaseModel):
+    total: int = Field(default=0)
+    page_index: int = Field(default=1)
+    page_size: int = Field(default=10)
+    data: list[T] = Field(default_factory=list)
+    pages: int = Field(default=0, description='总页数')
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class ResultResponse(BaseModel):

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -41,6 +41,7 @@ async def login_swagger(
     request: Request,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_service: AuthServiceDep,
+    redis=Depends(get_redis),
 ):
     username = form_data.username
     password = form_data.password
@@ -86,8 +87,8 @@ async def logout(refresh_token: str, redis=Depends(get_redis)):
     # 检查令牌是否过期
     exp = payload.get('exp')
     if exp is not None:
-        expires_at = datetime.fromtimestamp(exp, tz=UTC)
-        now = datetime.now(UTC)
+        expires_at = datetime.fromtimestamp(exp)
+        now = datetime.now()
         if expires_at > now:
             # 计算剩余有效时间并加入黑名单
             expires_delta = expires_at - now

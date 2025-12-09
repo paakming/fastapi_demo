@@ -4,6 +4,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, field_validator, model_validator
 
+from app.models.role import UserRoleVO
+
 
 class UserVO(BaseModel):
     id: int
@@ -15,7 +17,7 @@ class UserVO(BaseModel):
     phone: str | None = None
     gender: str | None = None
     avatar: str | None = None
-    roles: list[dict[str, str | bool]] | None = []
+    roles: list[UserRoleVO] | None = []
 
     @field_validator('birthday', mode='before')
     @classmethod
@@ -51,10 +53,16 @@ class UserVO(BaseModel):
     def validate_roles(cls, v):
         if v is None:
             return []
-        return [
-            {'name': role.name, 'code': role.code, 'is_admin': role.is_admin, 'is_super_admin': role.is_super_admin}
-            for role in v
-        ]
+        return [UserRoleVO.model_validate(role) for role in v]
+
+    class Config:
+        from_attributes = True
+
+
+class PrueUserVO(BaseModel):
+    id: int
+    username: str
+    email: str | None = None
 
     class Config:
         from_attributes = True

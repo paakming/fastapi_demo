@@ -23,6 +23,7 @@ class Menu(Base):
     parent_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True, comment='父级菜单ID')
     sequence: Mapped[int] = mapped_column(Integer, default=0, comment='序列')
     is_visible: Mapped[int] = mapped_column(Integer, default=0, comment='是否可见, 0-隐藏 1-显示')
+    type: Mapped[int] = mapped_column(Integer, comment='菜单类型, 0-目录 1-菜单 2-按钮 3-接口')
 
     roles: Mapped[list[Role]] = relationship(
         'Role',
@@ -32,3 +33,6 @@ class Menu(Base):
         secondaryjoin='Role.id == role_menu.c.role_id',
         lazy='selectin',
     )
+
+    def __repr__(self) -> str:
+        return f'Menu(id={self.id}, name={self.name}'

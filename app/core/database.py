@@ -2,7 +2,7 @@ from collections.abc import AsyncGenerator
 from datetime import datetime
 
 from loguru import logger
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.config import settings
@@ -32,7 +32,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             yield current_db
             await current_db.commit()
         except Exception:
-            # logger.exception('数据库会话提交失败')
+            logger.exception('数据库会话提交失败')
             await current_db.rollback()
             raise
         finally:
@@ -56,6 +56,7 @@ async def create_superuser():
                     updated_by=SUPERUSER_ID,
                 )
             )
+            await db.execute(text('SELECT setval(\'user_id_seq\', (SELECT MAX(id) FROM "user"));'))
             await db.commit()
             logger.info('超级用户创建成功')
         else:

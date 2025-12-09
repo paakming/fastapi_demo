@@ -11,10 +11,12 @@ class MenuVO(BaseModel):
     code: str
     path: str | None = None
     component: str | None = None
+    perms: str | None = None
     icon: str | None = None
     parent_id: int | None = None
-    sort: int
-    is_hidden: int
+    sequence: int
+    is_visible: int
+    type: int
     created_at: datetime
     updated_at: datetime | None = None
     children: list[MenuVO] = []

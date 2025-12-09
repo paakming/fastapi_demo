@@ -49,4 +49,4 @@ app.include_router(role_router)
 
 @app.get('/')
 async def main():
-    print('Hello from forum-fastapi!')
+    return 'FastAPI Demo'

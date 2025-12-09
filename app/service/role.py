@@ -14,12 +14,13 @@ from .utils import set_create_field, set_update_field
 class RoleService:
     def __init__(
         self,
-        role_repository: Annotated[RoleRepository, Depends(get_role_repository)],
-        menu_service: Annotated[MenuService, Depends(get_menu_service)],
-        current_user: Annotated[SecurityUser, Depends(get_current_user)],
+        role_repository: RoleRepository,
+        menu_service: MenuService,
+        current_user: SecurityUser,
     ):
         self.role_repository = role_repository
         self.current_user = current_user
+        self.menu_service = menu_service
 
     async def get_role_by_id(self, role_id: int):
         role = await self.role_repository.get_by_id(role_id)
@@ -48,8 +49,8 @@ class RoleService:
         role = await self.role_repository.get_by_id(role_id)
         if not role:
             return False
-        role.menus = []
-        return False
+        role.menus = await self.menu_service.get_menus_by_ids(menu_ids)
+        return True
 
 
 async def get_role_service(

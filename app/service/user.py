@@ -4,7 +4,7 @@ from fastapi import Depends
 
 from app.core.deps import get_current_user
 from app.exception import ServiceException
-from app.models.response import ResponseCode
+from app.models.response import Pagination, ResponseCode
 from app.models.security import SecurityUser
 from app.models.user import PassWordChangeDTO, UserCreateDTO, UserUpdateDTO, UserVO
 from app.repository.user import UserRepository, get_user_repository
@@ -17,13 +17,20 @@ from .utils import set_create_field, set_update_field
 class UserService:
     def __init__(
         self,
-        user_repository: Annotated[UserRepository, Depends(get_user_repository)],
-        role_service: Annotated[RoleService, Depends(get_role_service)],
-        current_user: Annotated[SecurityUser, Depends(get_current_user)],
+        user_repository: UserRepository,
+        role_service: RoleService,
+        current_user: SecurityUser,
     ):
         self.user_repository = user_repository
         self.role_service = role_service
         self.current_user = current_user
+
+    async def get_users(self, page_index, page_size) -> Pagination[UserVO]:
+        result = await self.user_repository.paginate(page_index, page_size)
+        users = result.data
+        user_vos = [UserVO.model_validate(user) for user in users]
+        result.data = user_vos
+        return result
 
     async def get_user_by_id(self, user_id: int) -> UserVO | None:
         user = await self.user_repository.get_by_id(user_id)
@@ -79,6 +86,14 @@ class UserService:
         await set_update_field(user, self.current_user)
         await self.user_repository.db.flush()
         return True
+
+    async def get_perms(self, user_id: int) -> list[str]:
+        user = await self.user_repository.get_by_id(user_id)
+        if user is None:
+            raise ServiceException(code=ResponseCode.ERROR, message='用户不存在')
+        menus = [menu for role in user.roles for menu in role.menus]
+        perms = [menu.perms for menu in menus]
+        return perms
 
 
 async def get_user_service(

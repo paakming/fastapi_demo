@@ -51,3 +51,6 @@ class Role(Base):
         secondaryjoin='User.id == user_role.c.user_id',
         lazy='selectin',
     )
+
+    def __repr__(self) -> str:
+        return f'Role(id={self.id}, name={self.name}, code={self.code})'

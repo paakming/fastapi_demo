@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import DateTime, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -16,18 +16,11 @@ class Base(DeclarativeBase):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment='删除时间')
 
 
-class BaseCreateDTO(BaseModel):
-    created_at: datetime | None = None
-    created_by: int | None = None
-
-    updated_at: datetime | None = None
-    updated_by: int | None = None
-
-    deleted_at: datetime | None = None
-
-
 class BaseUpdateDTO(BaseModel):
-    updated_at: datetime | None = None
-    updated_by: int | None = None
+    updated_at: datetime | None = Field(default=None)
+    updated_by: int | None = Field(default=None)
 
-    deleted_at: datetime | None = None
+
+class BaseCreateDTO(BaseUpdateDTO):
+    created_at: datetime | None = Field(default=None)
+    created_by: int | None = Field(default=None)

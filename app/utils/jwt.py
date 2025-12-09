@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Any, TypedDict
 
 import jwt
@@ -33,9 +33,9 @@ async def create_access_token(data: JwtPayload, expires_delta: timedelta | None 
     to_encode = data.copy()
 
     if expires_delta:
-        expire = datetime.now(UTC) + expires_delta
+        expire = datetime.now() + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({'exp': expire, 'type': 'access'})
     encoded_jwt: str = jwt.encode(dict(to_encode), SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -55,9 +55,9 @@ async def create_refresh_token(data: JwtPayload, expires_delta: timedelta | None
     to_encode = data.copy()
 
     if expires_delta:
-        expire = datetime.now(UTC) + expires_delta
+        expire = datetime.now() + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now() + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
 
     to_encode.update({'exp': expire, 'type': 'refresh'})
     encoded_jwt: str = jwt.encode(dict(to_encode), SECRET_KEY, algorithm=ALGORITHM)

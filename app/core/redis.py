@@ -1,4 +1,5 @@
 import redis.asyncio as redis
+from redis.asyncio import Redis
 
 from app.core.config import settings
 
@@ -16,7 +17,7 @@ redis_pool = redis.ConnectionPool(
 redis_client = redis.Redis(connection_pool=redis_pool)
 
 
-async def get_redis():
+async def get_redis() -> Redis:
     """
     获取Redis连接的依赖项
     """
